@@ -1,0 +1,51 @@
+{
+  "_comment": "Template for ~/.claude/settings.json hooks. Install script replaces {HOOKS_DIR} with actual path.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "tool_input.file_path matches '\\.(ts|tsx|js|jsx)$'",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{HOOKS_DIR}/warn-console-log-on-edit.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"{HOOKS_DIR}/ecosystem-reminder.js\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "tool == 'Bash' && tool_input.command matches 'git push'",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"process.stdout.write('Reminder: run /audit and /close gates before push')\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{HOOKS_DIR}/check-console-log.js\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{HOOKS_DIR}/pre-compact-save.js\""
+          }
+        ]
+      }
+    ]
+  }
+}

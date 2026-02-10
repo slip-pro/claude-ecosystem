@@ -7,7 +7,7 @@ set -e
 
 ECOSYSTEM_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
-DIRS=("agents" "rules" "skills" "hooks")
+DIRS=("agents" "rules" "commands" "skills" "hooks")
 
 echo -e "\033[36mClaude Ecosystem Installer\033[0m"
 echo "Ecosystem repo: $ECOSYSTEM_DIR"

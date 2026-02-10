@@ -7,7 +7,7 @@ param(
 )
 
 $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
-$Dirs = @("agents", "rules", "skills", "hooks")
+$Dirs = @("agents", "rules", "commands", "skills", "hooks")
 
 Write-Host "Claude Ecosystem Installer" -ForegroundColor Cyan
 Write-Host "Ecosystem repo: $EcosystemDir"

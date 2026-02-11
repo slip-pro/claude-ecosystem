@@ -25,7 +25,7 @@ function main() {
 
       const homeDir = os.homedir();
       const claudeGlobal = path.join(homeDir, '.claude');
-      const normalizedFile = path.normalize(filePath);
+      const normalizedFile = path.resolve(filePath);
 
       // Check if the file is in global .claude/ ecosystem directories
       const ecosystemDirs = ['agents', 'rules', 'skills', 'hooks'].map(

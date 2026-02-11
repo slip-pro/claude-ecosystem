@@ -1,6 +1,6 @@
 # Claude Ecosystem
 
-Centralized Claude Code configuration: agents, skills, rules, hooks, workflow templates.
+Centralized Claude Code configuration: agents, commands, rules, hooks, workflow templates.
 
 ## Installation
 
@@ -23,7 +23,7 @@ bash install.sh
 | Type | Count | Description |
 |------|-------|-------------|
 | Agents | 5 | developer, auditor, tester, documentor, designer |
-| Skills | 4 | /sprint, /close, /audit, /techdebt |
+| Commands | 4 | /sprint, /close, /audit, /techdebt |
 | Rules | 3 | coding-style, security, ecosystem-convention |
 | Hooks | 4 | console.log checks, pre-compact save, ecosystem reminder |
 | Workflow | 4 | DECISIONS, GOALS, BACKLOG, NOTE templates |

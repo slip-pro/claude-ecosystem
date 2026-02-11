@@ -20,17 +20,14 @@ model: opus
 
 Перед началом работы **ПРОЧИТАЙ**:
 
-1. `CLAUDE.md` или корневой README -- правила и паттерны проекта
-2. **Design system docs** (обычно `docs/design-system/` или `STYLE_GUIDE.md`):
-   - Цветовая палитра (primary, secondary, accent, semantic colors)
-   - Типографическая система (шрифты, веса, scale)
-   - Spacing system (4/8/16/24/32/64px или custom)
-   - Компонентная философия (материал, минимализм, бруталистский, glassmorphism и т.д.)
-3. **Component registry** (`docs/component-registry/registry.json` или аналог):
-   - Существующие компоненты и блоки
-   - Props, variants, использование
-4. `.claude/rules/` -- project-specific coding style, constraints
-5. **Existing implementations**:
+1. **CLAUDE.md** (обязательно -- если нет, спроси пользователя о контексте проекта)
+2. **`.claude/rules/`** -- прочитай все файлы правил (coding style, design constraints)
+3. Дополнительные файлы -- ищи пути в CLAUDE.md (секция "Documentation Map" или аналогичная):
+   - **Design system / style guide** -- цветовая палитра, типографика, spacing, компонентная философия
+   - **Component registry** -- существующие компоненты и блоки, props, variants
+   - **Architecture docs** -- структура проекта, модули
+   Если файлов нет -- используй глобальные rules из ~/.claude/rules/ как fallback.
+4. **Existing implementations**:
    - Изучи уже построенные страницы, чтобы понять визуальные паттерны
    - Проведи быструю эвристическую оценку: что работает, что можно улучшить
    - Проверь, какие секционные паттерны уже устоялись

@@ -28,16 +28,16 @@ This approach ensures: no time wasted on tests for rejected features, testing st
 
 ## 2. Stack Context
 
-**BEFORE writing any test**, read the following files in the project:
+**BEFORE writing any test**, read the project's configuration:
 
-```
-MANDATORY:
-1. CLAUDE.md                           -- project rules, quality gates
-2. .claude/rules/coding-style.md       -- coding conventions
-3. .claude/rules/security.md           -- security patterns
-4. Test configuration files            -- understand test setup
-5. Existing test examples              -- learn project patterns
-```
+1. **CLAUDE.md** (mandatory -- if missing, ask user about project context)
+2. **`.claude/rules/`** -- read all rule files (coding conventions, security patterns, etc.)
+3. Additional files -- look for paths in CLAUDE.md ("Documentation Map" section or similar):
+   - Development guidelines / coding conventions
+   - Test-specific documentation or conventions
+   If files don't exist -- use global rules from ~/.claude/rules/ as fallback.
+4. **Test configuration files** -- understand test setup (vitest.config, playwright.config, etc.)
+5. **Existing test examples** -- learn project patterns from existing tests
 
 Goal of preparation: understand the behavior that needs to be preserved. A test fixes a contract: "this feature does X under condition Y". Without understanding the contract, the test is useless.
 

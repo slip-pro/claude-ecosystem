@@ -10,7 +10,7 @@ param(
 )
 
 $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
-$Dirs = @("agents", "rules", "skills", "hooks")
+$Dirs = @("agents", "rules", "commands", "hooks")
 
 Write-Host "Claude Ecosystem Sync Check" -ForegroundColor Cyan
 Write-Host ""
@@ -29,8 +29,11 @@ if ($gitStatus) {
 }
 
 # Check if local is behind remote
-$behind = git rev-list HEAD..origin/main --count 2>$null
-$ahead = git rev-list origin/main..HEAD --count 2>$null
+$defaultBranch = git symbolic-ref refs/remotes/origin/HEAD 2>$null
+if ($defaultBranch) { $defaultBranch = Split-Path $defaultBranch -Leaf }
+else { $defaultBranch = "master" }
+$behind = git rev-list "HEAD..origin/$defaultBranch" --count 2>$null
+$ahead = git rev-list "origin/${defaultBranch}..HEAD" --count 2>$null
 if ($behind -gt 0) {
     Write-Host "  WARN: Local is $behind commits behind remote" -ForegroundColor Yellow
 }

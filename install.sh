@@ -7,7 +7,7 @@ set -e
 
 ECOSYSTEM_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
-DIRS=("agents" "rules" "commands" "skills" "hooks")
+DIRS=("agents" "rules" "commands" "hooks")
 
 echo -e "\033[36mClaude Ecosystem Installer\033[0m"
 echo "Ecosystem repo: $ECOSYSTEM_DIR"
@@ -75,8 +75,9 @@ if [ -f "$HOOKS_TEMPLATE" ]; then
         echo "$EXISTING" | jq --argjson hooks "$HOOKS_SECTION" '. + {hooks: $hooks}' > "$SETTINGS_PATH"
         echo -e "  \033[32mHooks configured\033[0m in $SETTINGS_PATH"
     else
-        echo -e "  \033[33mWARN\033[0m jq not found. Please manually merge hooks from settings-hooks.json"
-        echo "       Install jq: brew install jq (Mac) or apt install jq (Linux)"
+        echo -e "  \033[33mWARN\033[0m jq is not installed. Hooks configuration skipped."
+        echo "       Install jq: sudo apt install jq (Debian/Ubuntu) or brew install jq (macOS)"
+        echo "       Then re-run this script."
     fi
 else
     echo -e "  \033[33mSKIP\033[0m hooks (settings-hooks.json not found)"

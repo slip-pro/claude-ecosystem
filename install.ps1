@@ -7,7 +7,7 @@ param(
 )
 
 $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
-$Dirs = @("agents", "rules", "commands", "skills", "hooks")
+$Dirs = @("agents", "rules", "commands", "hooks")
 
 Write-Host "Claude Ecosystem Installer" -ForegroundColor Cyan
 Write-Host "Ecosystem repo: $EcosystemDir"
@@ -61,9 +61,9 @@ foreach ($dir in $Dirs) {
     }
 }
 
-# Merge hooks into settings.json
+# Merge hooks and permissions into settings.json
 Write-Host ""
-Write-Host "Configuring hooks in settings.json..." -ForegroundColor Cyan
+Write-Host "Configuring settings.json..." -ForegroundColor Cyan
 
 $settingsPath = Join-Path $ClaudeDir "settings.json"
 $hooksTemplatePath = Join-Path $EcosystemDir "settings-hooks.json"
@@ -82,9 +82,80 @@ if (Test-Path $hooksTemplatePath) {
         $settings = [PSCustomObject]@{}
     }
 
-    # Merge hooks (replace hooks section)
+    # Merge ecosystem permissions into settings.json (add missing, keep existing)
+    if ($hooksConfig.permissions) {
+        $existingPerms = $null
+        if ($settings.PSObject.Properties['permissions']) {
+            $existingPerms = $settings.permissions
+        }
+
+        if (-not $existingPerms) {
+            $settings | Add-Member -NotePropertyName "permissions" -NotePropertyValue $hooksConfig.permissions -Force
+        } else {
+            # Merge allow lists: add ecosystem permissions that don't already exist
+            $existingAllow = @()
+            if ($existingPerms.PSObject.Properties['allow']) {
+                $existingAllow = @($existingPerms.allow)
+            }
+            foreach ($perm in $hooksConfig.permissions.allow) {
+                if ($existingAllow -notcontains $perm) {
+                    $existingAllow += $perm
+                }
+            }
+            $existingPerms | Add-Member -NotePropertyName "allow" -NotePropertyValue $existingAllow -Force
+            $settings | Add-Member -NotePropertyName "permissions" -NotePropertyValue $existingPerms -Force
+        }
+        Write-Host "  Permissions configured" -ForegroundColor Green
+    }
+
+    # Merge ecosystem hooks into settings.json (preserves user-added hooks)
     if ($hooksConfig.hooks) {
-        $settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue $hooksConfig.hooks -Force
+        $existingHooks = $null
+        if ($settings.PSObject.Properties['hooks']) {
+            $existingHooks = $settings.hooks
+        }
+
+        if (-not $existingHooks) {
+            # No existing hooks — just set ecosystem hooks
+            $settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue $hooksConfig.hooks -Force
+        } else {
+            # Merge: for each lifecycle event, append ecosystem entries that don't already exist
+            foreach ($hookEvent in $hooksConfig.hooks.PSObject.Properties) {
+                $eventName = $hookEvent.Name
+                $ecosystemEntries = $hookEvent.Value
+
+                if (-not $existingHooks.PSObject.Properties[$eventName]) {
+                    # Event doesn't exist in current settings — add it
+                    $existingHooks | Add-Member -NotePropertyName $eventName -NotePropertyValue $ecosystemEntries -Force
+                } else {
+                    # Event exists — merge hook entries by checking command strings
+                    $existing = @($existingHooks.$eventName)
+                    foreach ($ecosystemEntry in $ecosystemEntries) {
+                        $ecosystemHooks = $ecosystemEntry.hooks
+                        $entryAlreadyExists = $false
+                        foreach ($hook in $ecosystemHooks) {
+                            $hookCommand = $hook.command
+                            # Check if this hook command already exists in any entry
+                            foreach ($existingEntry in $existing) {
+                                foreach ($existingHook in $existingEntry.hooks) {
+                                    if ($existingHook.command -eq $hookCommand) {
+                                        $entryAlreadyExists = $true
+                                        break
+                                    }
+                                }
+                                if ($entryAlreadyExists) { break }
+                            }
+                            if ($entryAlreadyExists) { break }
+                        }
+                        if (-not $entryAlreadyExists) {
+                            $existing += $ecosystemEntry
+                        }
+                    }
+                    $existingHooks.$eventName = $existing
+                }
+            }
+            $settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue $existingHooks -Force
+        }
     }
 
     # Write back
@@ -100,5 +171,5 @@ Write-Host ""
 Write-Host "Verify:" -ForegroundColor Cyan
 Write-Host "  1. Open Claude Code in any project"
 Write-Host "  2. Check agents: @developer, @auditor, @tester, @documentor, @designer"
-Write-Host "  3. Check skills: /sprint, /close, /audit, /techdebt"
+Write-Host "  3. Check commands: /sprint, /close, /audit, /techdebt"
 Write-Host "  4. Edit a .ts file with console.log - hook should warn"

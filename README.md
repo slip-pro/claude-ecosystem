@@ -23,7 +23,7 @@ bash install.sh
 | Type | Count | Description |
 |------|-------|-------------|
 | Agents | 5 | developer, auditor, tester, documentor, designer |
-| Commands | 4 | /sprint, /close, /audit, /techdebt |
+| Commands | 6 | /plan, /pbr, /sprint, /audit, /close, /techdebt |
 | Rules | 3 | coding-style, security, ecosystem-convention |
 | Hooks | 4 | console.log checks, pre-compact save, ecosystem reminder |
 | Workflow | 4 | DECISIONS, GOALS, BACKLOG, NOTE templates |

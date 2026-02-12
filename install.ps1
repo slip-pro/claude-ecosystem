@@ -165,6 +165,32 @@ if (Test-Path $hooksTemplatePath) {
     Write-Host "  SKIP hooks (settings-hooks.json not found)" -ForegroundColor Yellow
 }
 
+# Build Board MCP server
+Write-Host ""
+Write-Host "Building Board MCP server..." -ForegroundColor Cyan
+
+$boardServerDir = Join-Path $EcosystemDir "mcp\board-server"
+if (Test-Path $boardServerDir) {
+    Push-Location $boardServerDir
+    try {
+        if (-not (Test-Path "node_modules")) {
+            Write-Host "  Installing dependencies..."
+            npm install --silent 2>&1 | Out-Null
+        }
+        npm run build --silent 2>&1 | Out-Null
+        if (Test-Path "dist\board-server.js") {
+            Write-Host "  Board MCP server built" -ForegroundColor Green
+        } else {
+            Write-Host "  WARN build completed but dist/board-server.js not found" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "  FAIL Board MCP server build failed: $_" -ForegroundColor Red
+    }
+    Pop-Location
+} else {
+    Write-Host "  SKIP Board MCP server (directory not found)" -ForegroundColor Yellow
+}
+
 Write-Host ""
 Write-Host "Installation complete!" -ForegroundColor Green
 Write-Host ""
@@ -174,5 +200,7 @@ Write-Host "  2. Check agents: @developer, @auditor, @tester, @documentor, @desi
 Write-Host "  3. Check commands: /plan, /pbr, /sprint, /close, /task, /done, /audit, /techdebt"
 Write-Host "  4. Edit a .ts file with console.log - hook should warn"
 Write-Host ""
-Write-Host "Board mode (optional):" -ForegroundColor Cyan
-Write-Host "  See mcp/board-server/README.md for MCP server setup"
+Write-Host "Board setup:" -ForegroundColor Cyan
+Write-Host "  1. Copy mcp/board-server/.mcp.template.json to project root as .mcp.json"
+Write-Host "  2. Set MCP_API_URL, MCP_API_KEY, MCP_BOARD_ID in .mcp.json"
+Write-Host "  3. Replace ECOSYSTEM_PATH with actual path to this repo"

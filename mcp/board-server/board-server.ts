@@ -26,10 +26,18 @@ let prisma: any = null;
 
 async function getPrisma() {
   if (!prisma) {
-    // Dynamic import — resolved from project's node_modules at runtime
-    const prismaModule = '@prisma/client';
-    const { PrismaClient } = await import(prismaModule);
-    prisma = new PrismaClient();
+    try {
+      const prismaModule = '@prisma/client';
+      const { PrismaClient } = await import(prismaModule);
+      prisma = new PrismaClient();
+    } catch {
+      throw new Error(
+        'Prisma mode unavailable: @prisma/client not found. ' +
+        'Configure REST API credentials (MCP_API_URL, MCP_API_KEY) ' +
+        'in ~/.claude/settings.json → env section, ' +
+        'or install @prisma/client in the project.'
+      );
+    }
   }
   return prisma;
 }
@@ -819,6 +827,13 @@ async function main() {
   const mode = useRestApi
     ? `REST API (${API_URL})`
     : 'Prisma (local DB)';
+  if (!useRestApi) {
+    console.error(
+      '[board] WARNING: MCP_API_URL / MCP_API_KEY not set. ' +
+      'Falling back to Prisma mode. ' +
+      'If @prisma/client is not available, tool calls will fail.'
+    );
+  }
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error(`[board] MCP server started — ${mode}`);

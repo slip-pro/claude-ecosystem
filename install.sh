@@ -110,6 +110,28 @@ else
     echo -e "  \033[33mSKIP\033[0m hooks (settings-hooks.json not found)"
 fi
 
+# Build Board MCP server
+echo ""
+echo -e "\033[36mBuilding Board MCP server...\033[0m"
+
+BOARD_SERVER_DIR="$ECOSYSTEM_DIR/mcp/board-server"
+if [ -d "$BOARD_SERVER_DIR" ]; then
+    pushd "$BOARD_SERVER_DIR" > /dev/null
+    if [ ! -d "node_modules" ]; then
+        echo "  Installing dependencies..."
+        npm install --silent 2>/dev/null
+    fi
+    npm run build --silent 2>/dev/null
+    if [ -f "dist/board-server.js" ]; then
+        echo -e "  \033[32mBoard MCP server built\033[0m"
+    else
+        echo -e "  \033[33mWARN\033[0m build completed but dist/board-server.js not found"
+    fi
+    popd > /dev/null
+else
+    echo -e "  \033[33mSKIP\033[0m Board MCP server (directory not found)"
+fi
+
 echo ""
 echo -e "\033[32mInstallation complete!\033[0m"
 echo ""
@@ -119,5 +141,7 @@ echo "  2. Check agents: @developer, @auditor, @tester, @documentor, @designer"
 echo "  3. Check commands: /plan, /pbr, /sprint, /close, /task, /done, /audit, /techdebt"
 echo "  4. Edit a .ts file with console.log - hook should warn"
 echo ""
-echo -e "\033[36mBoard mode (optional):\033[0m"
-echo "  See mcp/board-server/README.md for MCP server setup"
+echo -e "\033[36mBoard setup:\033[0m"
+echo "  1. Copy mcp/board-server/.mcp.template.json to project root as .mcp.json"
+echo "  2. Set MCP_API_URL, MCP_API_KEY, MCP_BOARD_ID in .mcp.json"
+echo "  3. Replace ECOSYSTEM_PATH with actual path to this repo"

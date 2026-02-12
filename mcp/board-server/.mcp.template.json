@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "board": {
+      "command": "node",
+      "args": ["ECOSYSTEM_PATH/mcp/board-server/dist/board-server.js"],
+      "env": {
+        "MCP_API_URL": "YOUR_API_URL_HERE",
+        "MCP_API_KEY": "YOUR_API_KEY_HERE",
+        "MCP_BOARD_ID": "YOUR_BOARD_ID_HERE"
+      }
+    }
+  }
+}

@@ -38,7 +38,9 @@ MCP_BOARD_ID=your-board-id
 
 ## Подключение к проекту
 
-### 1. Установка
+### 1. Сборка (автоматически через installer)
+
+Инсталлер экосистемы (`install.ps1` / `install.sh`) собирает сервер автоматически. Ручная сборка:
 
 ```bash
 cd mcp/board-server
@@ -46,9 +48,9 @@ npm install
 npm run build
 ```
 
-### 2. Настройка Claude Code
+### 2. Per-project `.mcp.json`
 
-Добавь в `.claude/settings.local.json` проекта (или `~/.claude/settings.json` глобально):
+Скопировать `.mcp.template.json` в корень проекта как `.mcp.json`. Все credentials хранятся в `.mcp.json` проекта:
 
 ```json
 {
@@ -66,23 +68,13 @@ npm run build
 }
 ```
 
-Или с `tsx` для development:
+Заменить:
+- `ECOSYSTEM_PATH` — путь к ecosystem-репо
+- `MCP_API_URL` — URL доски
+- `MCP_API_KEY` — API-ключ
+- `MCP_BOARD_ID` — ID доски проекта
 
-```json
-{
-  "mcpServers": {
-    "board": {
-      "command": "npx",
-      "args": ["tsx", "/path/to/claude-ecosystem/mcp/board-server/board-server.ts"],
-      "env": {
-        "MCP_API_URL": "https://app.example.com",
-        "MCP_API_KEY": "sk_live_xxxxx",
-        "MCP_BOARD_ID": "your-board-id"
-      }
-    }
-  }
-}
-```
+**Важно:** `.mcp.json` содержит секреты — добавь в `.gitignore`.
 
 ### 3. Проверка
 

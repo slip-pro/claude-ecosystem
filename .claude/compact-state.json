@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-02-12T07:41:27.382Z",
+  "branch": "master",
+  "status": "M README.md\n M commands/audit.md\n M commands/close.md\n M commands/techdebt.md\n M install.ps1\n M install.sh\nAD tmp/DECISIONS.md\nAD tmp/skills/done/SKILL.md\nAD tmp/skills/mcp/board-server.ts\nAD tmp/skills/mcp/tsconfig.json\nAD tmp/skills/task/SKILL.md\n M workflow/DECISIONS-TEMPLATE.md\n?? .claude/\n?? adapters/\n?? commands/done.md\n?? commands/task.md\n?? mcp/\n?? nul\n?? setup-antigravity.ps1\n?? setup-antigravity.sh\n?? setup-codex.ps1\n?? setup-codex.sh\n?? setup-cursor.ps1\n?? setup-cursor.sh\n?? workflow/DECISIONS-BOARD-TEMPLATE.md",
+  "lastCommit": "f2c8f89 feat: add planning and backlog refinement commands, update sprint command guidance",
+  "modifiedFiles": [
+    "README.md",
+    "commands/audit.md",
+    "commands/close.md",
+    "commands/techdebt.md",
+    "install.ps1",
+    "install.sh",
+    "tmp/DECISIONS.md",
+    "tmp/skills/done/SKILL.md",
+    "tmp/skills/mcp/board-server.ts",
+    "tmp/skills/mcp/tsconfig.json",
+    "tmp/skills/task/SKILL.md",
+    "workflow/DECISIONS-TEMPLATE.md"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "board-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for board task management — provides Claude Code with board access (read/write cards, columns, comments)",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/board-server.js",
+    "dev": "tsx board-server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.7.3"
+  }
+}

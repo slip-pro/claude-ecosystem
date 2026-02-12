@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:atamel.dev)",
+      "WebFetch(domain:www.lanxk.com)",
+      "WebFetch(domain:design.dev)",
+      "Bash(powershell.exe -NoProfile -Command \"$errors = $null; [System.Management.Automation.Language.Parser]::ParseFile\\(''d:\\\\CODING\\\\claude-ecosystem\\\\setup-codex.ps1'', [ref]$null, [ref]$errors\\); if \\($errors.Count -eq 0\\) { ''PowerShell syntax OK'' } else { $errors | ForEach-Object { $_ToString\\(\\) } }\")",
+      "Bash(powershell.exe:*)",
+      "Bash(bash:*)",
+      "Bash(echo '{\"\"permissions\"\":{\"\"allow\"\":[\"\"Bash\\(git:*\\)\"\"]},\"\"hooks\"\":{\"\"PreToolUse\"\":[{\"\"matcher\"\":\"\"tool == ''''Bash''''\"\",\"\"hooks\"\":[{\"\"type\"\":\"\"command\"\",\"\"command\"\":\"\"echo existing\"\"}]}]}}')"
+    ]
+  }
+}

@@ -51,9 +51,9 @@ for dir in "${DIRS[@]}"; do
     echo -e "  \033[32mLINK\033[0m $dir -> $source"
 done
 
-# Merge hooks into settings.json
+# Merge hooks and permissions into settings.json
 echo ""
-echo -e "\033[36mConfiguring hooks in settings.json...\033[0m"
+echo -e "\033[36mConfiguring settings.json...\033[0m"
 
 SETTINGS_PATH="$CLAUDE_DIR/settings.json"
 HOOKS_TEMPLATE="$ECOSYSTEM_DIR/settings-hooks.json"
@@ -72,12 +72,39 @@ if [ -f "$HOOKS_TEMPLATE" ]; then
         fi
 
         HOOKS_SECTION=$(echo "$HOOKS_JSON" | jq '.hooks')
-        echo "$EXISTING" | jq --argjson hooks "$HOOKS_SECTION" '. + {hooks: $hooks}' > "$SETTINGS_PATH"
+        PERMS_SECTION=$(echo "$HOOKS_JSON" | jq '.permissions')
+
+        # Merge permissions (additive) and hooks (additive, deduplicate by command)
+        MERGED=$(echo "$EXISTING" | jq \
+            --argjson hooks "$HOOKS_SECTION" \
+            --argjson perms "$PERMS_SECTION" \
+            '
+            .permissions.allow = ((.permissions.allow // []) + ($perms.allow // []) | unique)
+            | .hooks as $existing_hooks
+            | .hooks = (
+                reduce ($hooks | to_entries[]) as $event (
+                  ($existing_hooks // {});
+                  .[$event.key] = (
+                    (.[$event.key] // []) as $existing |
+                    $existing + [
+                      $event.value[] | select(
+                        .hooks[0].command as $cmd |
+                        [$existing[] | .hooks[].command] | index($cmd) | not
+                      )
+                    ]
+                  )
+                )
+              )
+            ')
+        echo "$MERGED" > "$SETTINGS_PATH"
+
+        echo -e "  \033[32mPermissions configured\033[0m"
         echo -e "  \033[32mHooks configured\033[0m in $SETTINGS_PATH"
     else
-        echo -e "  \033[33mWARN\033[0m jq is not installed. Hooks configuration skipped."
-        echo "       Install jq: sudo apt install jq (Debian/Ubuntu) or brew install jq (macOS)"
-        echo "       Then re-run this script."
+        echo -e "  \033[31mERROR\033[0m jq is required for settings.json configuration."
+        echo "        Install jq: sudo apt install jq (Debian/Ubuntu) or brew install jq (macOS)"
+        echo "        Then re-run this script."
+        exit 1
     fi
 else
     echo -e "  \033[33mSKIP\033[0m hooks (settings-hooks.json not found)"
@@ -89,5 +116,8 @@ echo ""
 echo -e "\033[36mVerify:\033[0m"
 echo "  1. Open Claude Code in any project"
 echo "  2. Check agents: @developer, @auditor, @tester, @documentor, @designer"
-echo "  3. Check skills: /sprint, /close, /audit, /techdebt"
+echo "  3. Check commands: /plan, /pbr, /sprint, /close, /task, /done, /audit, /techdebt"
 echo "  4. Edit a .ts file with console.log - hook should warn"
+echo ""
+echo -e "\033[36mBoard mode (optional):\033[0m"
+echo "  See mcp/board-server/README.md for MCP server setup"

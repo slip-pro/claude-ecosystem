@@ -171,5 +171,8 @@ Write-Host ""
 Write-Host "Verify:" -ForegroundColor Cyan
 Write-Host "  1. Open Claude Code in any project"
 Write-Host "  2. Check agents: @developer, @auditor, @tester, @documentor, @designer"
-Write-Host "  3. Check commands: /sprint, /close, /audit, /techdebt"
+Write-Host "  3. Check commands: /plan, /pbr, /sprint, /close, /task, /done, /audit, /techdebt"
 Write-Host "  4. Edit a .ts file with console.log - hook should warn"
+Write-Host ""
+Write-Host "Board mode (optional):" -ForegroundColor Cyan
+Write-Host "  See mcp/board-server/README.md for MCP server setup"

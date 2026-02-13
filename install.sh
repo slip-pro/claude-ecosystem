@@ -94,7 +94,7 @@ if [ -f "$TEMPLATE_PATH" ]; then
             ')
         echo "$MERGED" > "$SETTINGS_PATH"
 
-        echo -e "  \033[32mPermissions configured (bypassPermissions + deny list)\033[0m"
+        echo -e "  \033[32mPermissions configured (Bash(*) allow + deny list)\033[0m"
         echo -e "  \033[32mSettings configured\033[0m in $SETTINGS_PATH"
     else
         echo -e "  \033[31mERROR\033[0m jq is required for settings.json configuration."

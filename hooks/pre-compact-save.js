@@ -37,7 +37,28 @@ function main() {
   fs.writeFileSync(outPath, JSON.stringify(state, null, 2), 'utf-8');
 
   process.stdout.write(
-    'State saved to .claude/compact-state.json. After compaction, read this file to restore context.'
+    [
+      'Git state saved to .claude/compact-state.json.',
+      '',
+      'BEFORE compaction, write a structured handoff to .claude/handoff.md:',
+      '',
+      '## Current State',
+      '[What task/feature are you working on? What phase?]',
+      '',
+      '## Completed Work',
+      '[What got done in this session — bullet list]',
+      '',
+      '## Remaining Work',
+      '[What is left to do — bullet list]',
+      '',
+      '## Decisions Made',
+      '[Key decisions and WHY — so next context does not re-debate]',
+      '',
+      '## Next Action',
+      '[The SPECIFIC first step to take after compaction]',
+      '',
+      'After compaction, read .claude/compact-state.json and .claude/handoff.md to restore context.',
+    ].join('\n')
   );
 }
 

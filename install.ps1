@@ -81,7 +81,7 @@ if (Test-Path $templatePath) {
     # Set permissions (defaultMode + deny list from ecosystem)
     if ($template.permissions) {
         $settings | Add-Member -NotePropertyName "permissions" -NotePropertyValue $template.permissions -Force
-        Write-Host "  Permissions configured (bypassPermissions + deny list)" -ForegroundColor Green
+        Write-Host "  Permissions configured (Bash(*) allow + deny list)" -ForegroundColor Green
     }
 
     # Merge ecosystem hooks into settings.json (preserves user-added hooks)

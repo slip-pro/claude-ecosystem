@@ -51,35 +51,31 @@ for dir in "${DIRS[@]}"; do
     echo -e "  \033[32mLINK\033[0m $dir -> $source"
 done
 
-# Merge hooks and permissions into settings.json
+# Merge permissions and hooks into settings.json
 echo ""
 echo -e "\033[36mConfiguring settings.json...\033[0m"
 
 SETTINGS_PATH="$CLAUDE_DIR/settings.json"
-HOOKS_TEMPLATE="$ECOSYSTEM_DIR/settings-hooks.json"
-HOOKS_DIR="$CLAUDE_DIR/hooks"
+TEMPLATE_PATH="$ECOSYSTEM_DIR/settings-hooks.json"
 
-if [ -f "$HOOKS_TEMPLATE" ]; then
-    # Read template and replace {HOOKS_DIR}
-    HOOKS_JSON=$(sed "s|{HOOKS_DIR}|$HOOKS_DIR|g" "$HOOKS_TEMPLATE")
-
+if [ -f "$TEMPLATE_PATH" ]; then
     if command -v jq &> /dev/null; then
-        # Use jq for proper JSON merging
         if [ -f "$SETTINGS_PATH" ]; then
             EXISTING=$(cat "$SETTINGS_PATH")
         else
             EXISTING='{}'
         fi
 
-        HOOKS_SECTION=$(echo "$HOOKS_JSON" | jq '.hooks')
-        PERMS_SECTION=$(echo "$HOOKS_JSON" | jq '.permissions')
+        TEMPLATE=$(cat "$TEMPLATE_PATH")
+        HOOKS_SECTION=$(echo "$TEMPLATE" | jq '.hooks')
+        PERMS_SECTION=$(echo "$TEMPLATE" | jq '.permissions')
 
-        # Merge permissions (additive) and hooks (additive, deduplicate by command)
+        # Set permissions from ecosystem, merge hooks (deduplicate by command)
         MERGED=$(echo "$EXISTING" | jq \
             --argjson hooks "$HOOKS_SECTION" \
             --argjson perms "$PERMS_SECTION" \
             '
-            .permissions.allow = ((.permissions.allow // []) + ($perms.allow // []) | unique)
+            .permissions = $perms
             | .hooks as $existing_hooks
             | .hooks = (
                 reduce ($hooks | to_entries[]) as $event (
@@ -98,8 +94,8 @@ if [ -f "$HOOKS_TEMPLATE" ]; then
             ')
         echo "$MERGED" > "$SETTINGS_PATH"
 
-        echo -e "  \033[32mPermissions configured\033[0m"
-        echo -e "  \033[32mHooks configured\033[0m in $SETTINGS_PATH"
+        echo -e "  \033[32mPermissions configured (bypassPermissions + deny list)\033[0m"
+        echo -e "  \033[32mSettings configured\033[0m in $SETTINGS_PATH"
     else
         echo -e "  \033[31mERROR\033[0m jq is required for settings.json configuration."
         echo "        Install jq: sudo apt install jq (Debian/Ubuntu) or brew install jq (macOS)"
@@ -107,7 +103,7 @@ if [ -f "$HOOKS_TEMPLATE" ]; then
         exit 1
     fi
 else
-    echo -e "  \033[33mSKIP\033[0m hooks (settings-hooks.json not found)"
+    echo -e "  \033[33mSKIP\033[0m settings (settings-hooks.json not found)"
 fi
 
 # Build Board MCP server

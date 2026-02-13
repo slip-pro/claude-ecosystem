@@ -61,19 +61,15 @@ foreach ($dir in $Dirs) {
     }
 }
 
-# Merge hooks and permissions into settings.json
+# Merge permissions and hooks into settings.json
 Write-Host ""
 Write-Host "Configuring settings.json..." -ForegroundColor Cyan
 
 $settingsPath = Join-Path $ClaudeDir "settings.json"
-$hooksTemplatePath = Join-Path $EcosystemDir "settings-hooks.json"
-$hooksDir = (Join-Path $ClaudeDir "hooks") -replace '\\', '/'
+$templatePath = Join-Path $EcosystemDir "settings-hooks.json"
 
-if (Test-Path $hooksTemplatePath) {
-    # Read template and replace {HOOKS_DIR}
-    $hooksTemplate = Get-Content $hooksTemplatePath -Raw
-    $hooksTemplate = $hooksTemplate -replace '\{HOOKS_DIR\}', $hooksDir
-    $hooksConfig = $hooksTemplate | ConvertFrom-Json
+if (Test-Path $templatePath) {
+    $template = Get-Content $templatePath -Raw | ConvertFrom-Json
 
     # Read or create settings.json
     if (Test-Path $settingsPath) {
@@ -82,63 +78,36 @@ if (Test-Path $hooksTemplatePath) {
         $settings = [PSCustomObject]@{}
     }
 
-    # Merge ecosystem permissions into settings.json (add missing, keep existing)
-    if ($hooksConfig.permissions) {
-        $existingPerms = $null
-        if ($settings.PSObject.Properties['permissions']) {
-            $existingPerms = $settings.permissions
-        }
-
-        if (-not $existingPerms) {
-            $settings | Add-Member -NotePropertyName "permissions" -NotePropertyValue $hooksConfig.permissions -Force
-        } else {
-            # Merge allow lists: add ecosystem permissions that don't already exist
-            $existingAllow = @()
-            if ($existingPerms.PSObject.Properties['allow']) {
-                $existingAllow = @($existingPerms.allow)
-            }
-            foreach ($perm in $hooksConfig.permissions.allow) {
-                if ($existingAllow -notcontains $perm) {
-                    $existingAllow += $perm
-                }
-            }
-            $existingPerms | Add-Member -NotePropertyName "allow" -NotePropertyValue $existingAllow -Force
-            $settings | Add-Member -NotePropertyName "permissions" -NotePropertyValue $existingPerms -Force
-        }
-        Write-Host "  Permissions configured" -ForegroundColor Green
+    # Set permissions (defaultMode + deny list from ecosystem)
+    if ($template.permissions) {
+        $settings | Add-Member -NotePropertyName "permissions" -NotePropertyValue $template.permissions -Force
+        Write-Host "  Permissions configured (bypassPermissions + deny list)" -ForegroundColor Green
     }
 
     # Merge ecosystem hooks into settings.json (preserves user-added hooks)
-    if ($hooksConfig.hooks) {
+    if ($template.hooks) {
         $existingHooks = $null
         if ($settings.PSObject.Properties['hooks']) {
             $existingHooks = $settings.hooks
         }
 
         if (-not $existingHooks) {
-            # No existing hooks — just set ecosystem hooks
-            $settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue $hooksConfig.hooks -Force
+            $settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue $template.hooks -Force
         } else {
-            # Merge: for each lifecycle event, append ecosystem entries that don't already exist
-            foreach ($hookEvent in $hooksConfig.hooks.PSObject.Properties) {
+            foreach ($hookEvent in $template.hooks.PSObject.Properties) {
                 $eventName = $hookEvent.Name
                 $ecosystemEntries = $hookEvent.Value
 
                 if (-not $existingHooks.PSObject.Properties[$eventName]) {
-                    # Event doesn't exist in current settings — add it
                     $existingHooks | Add-Member -NotePropertyName $eventName -NotePropertyValue $ecosystemEntries -Force
                 } else {
-                    # Event exists — merge hook entries by checking command strings
                     $existing = @($existingHooks.$eventName)
                     foreach ($ecosystemEntry in $ecosystemEntries) {
-                        $ecosystemHooks = $ecosystemEntry.hooks
                         $entryAlreadyExists = $false
-                        foreach ($hook in $ecosystemHooks) {
-                            $hookCommand = $hook.command
-                            # Check if this hook command already exists in any entry
+                        foreach ($hook in $ecosystemEntry.hooks) {
                             foreach ($existingEntry in $existing) {
                                 foreach ($existingHook in $existingEntry.hooks) {
-                                    if ($existingHook.command -eq $hookCommand) {
+                                    if ($existingHook.command -eq $hook.command) {
                                         $entryAlreadyExists = $true
                                         break
                                     }
@@ -160,9 +129,9 @@ if (Test-Path $hooksTemplatePath) {
 
     # Write back
     $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath -Encoding utf8
-    Write-Host "  Hooks configured in $settingsPath" -ForegroundColor Green
+    Write-Host "  Settings configured in $settingsPath" -ForegroundColor Green
 } else {
-    Write-Host "  SKIP hooks (settings-hooks.json not found)" -ForegroundColor Yellow
+    Write-Host "  SKIP settings (settings-hooks.json not found)" -ForegroundColor Yellow
 }
 
 # Build Board MCP server

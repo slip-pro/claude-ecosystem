@@ -1,64 +1,15 @@
 {
-  "_comment": "Template for ~/.claude/settings.json. Install script replaces {HOOKS_DIR} with actual path and merges into existing settings.",
+  "_comment": "Ecosystem settings template. Merged into ~/.claude/settings.json by install script. Secrets (env, enabledPlugins) are NOT stored here — they stay machine-local.",
   "permissions": {
-    "allow": [
-      "Bash(git status:*)",
-      "Bash(git log:*)",
-      "Bash(git diff:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git branch:*)",
-      "Bash(git checkout:*)",
-      "Bash(git rm:*)",
-      "Bash(git ls-tree:*)",
-      "Bash(git remote add:*)",
-      "Bash(git init:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run:*)",
-      "Bash(npm test:*)",
-      "Bash(npm update:*)",
-      "Bash(npm ls:*)",
-      "Bash(npm pkg set:*)",
-      "Bash(npx:*)",
-      "Bash(node:*)",
-      "Bash(ls:*)",
-      "Bash(dir:*)",
-      "Bash(cat:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
-      "Bash(tree:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(findstr:*)",
-      "Bash(sort:*)",
-      "Bash(wc:*)",
-      "Bash(test:*)",
-      "Bash(curl:*)",
-      "Bash(ping:*)",
-      "Bash(ssh:*)",
-      "Bash(scp:*)",
-      "Bash(docker ps:*)",
-      "Bash(docker run:*)",
-      "Bash(docker exec:*)",
-      "Bash(docker-compose up:*)",
-      "Bash(powershell:*)",
-      "Bash(where:*)",
-      "Bash(netstat:*)",
-      "Bash(pushd:*)",
-      "Bash(popd:*)",
-      "Bash(ln:*)",
-      "Bash(taskkill:*)",
-      "Bash(wmic:*)",
-      "Bash(timeout:*)",
-      "Bash(winget install:*)",
-      "Bash(gh auth:*)",
-      "Bash(gh repo create:*)",
-      "Bash(python -c:*)",
-      "Bash(python3:*)",
-      "Bash(psql:*)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+    "defaultMode": "bypassPermissions",
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(chmod 777 *)",
+      "Bash(mkfs *)",
+      "Bash(dd *)",
+      "Bash(git push --force *)",
+      "Bash(git reset --hard *)"
     ]
   },
   "hooks": {
@@ -68,11 +19,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"{HOOKS_DIR}/warn-console-log-on-edit.js\""
+            "command": "node \"$HOME/.claude/hooks/warn-console-log-on-edit.js\""
           },
           {
             "type": "command",
-            "command": "node \"{HOOKS_DIR}/ecosystem-reminder.js\""
+            "command": "node \"$HOME/.claude/hooks/ecosystem-reminder.js\""
           }
         ]
       }
@@ -93,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"{HOOKS_DIR}/check-console-log.js\""
+            "command": "node \"$HOME/.claude/hooks/check-console-log.js\""
           }
         ]
       }
@@ -103,7 +54,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"{HOOKS_DIR}/pre-compact-save.js\""
+            "command": "node \"$HOME/.claude/hooks/pre-compact-save.js\""
           }
         ]
       }

@@ -1,9 +1,7 @@
 {
   "_comment": "Ecosystem settings template. Merged into ~/.claude/settings.json by install script. Secrets (env, enabledPlugins) are NOT stored here — they stay machine-local.",
   "permissions": {
-    "allow": [
-      "Bash(*)"
-    ],
+    "defaultMode": "bypassPermissions",
     "deny": [
       "Bash(rm -rf *)",
       "Bash(sudo *)",

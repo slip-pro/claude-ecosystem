@@ -100,12 +100,30 @@ cp "$TMUX_CONF" "$TARGET"
 ok "Config copied to $TARGET"
 
 # -----------------------------------------------------------
-# 6. Install plugins via TPM
+# 6. Install plugins (clone directly, TPM manages updates later)
 # -----------------------------------------------------------
 
-info "Installing tmux plugins via TPM..."
-"$TPM_DIR/bin/install_plugins"
-ok "All plugins installed"
+PLUGIN_DIR="$HOME/.tmux/plugins"
+PLUGINS=(
+  "tmux-plugins/tmux-sensible"
+  "tmux-plugins/tmux-resurrect"
+  "tmux-plugins/tmux-continuum"
+  "jaclu/tmux-menus"
+  "laktak/extrakto"
+  "omerxx/tmux-sessionx"
+)
+
+for plugin in "${PLUGINS[@]}"; do
+  name=$(basename "$plugin")
+  dest="$PLUGIN_DIR/$name"
+  if [ -d "$dest" ]; then
+    ok "$name already installed"
+  else
+    info "Installing $name..."
+    git clone --depth 1 "https://github.com/$plugin" "$dest" 2>/dev/null
+    ok "$name installed"
+  fi
+done
 
 # -----------------------------------------------------------
 # Done

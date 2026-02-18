@@ -1,0 +1,52 @@
+# Woodpecker CI pipeline: Static site (Vite, Next.js export, Astro, etc.)
+# install -> lint + test (parallel) -> build -> deploy via rsync
+#
+# Usage: copy to project root as .woodpecker.yml
+# Required secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY
+
+variables:
+  - &node 'node:20-alpine'
+
+when:
+  - event: [push, pull_request]
+
+steps:
+  - name: install
+    image: *node
+    commands:
+      - npm ci
+
+  - name: lint
+    image: *node
+    commands:
+      - npm run lint
+    depends_on: [install]
+
+  - name: test
+    image: *node
+    commands:
+      - npm test
+    depends_on: [install]
+
+  - name: build
+    image: *node
+    commands:
+      - npm run build
+    depends_on: [lint, test]
+
+  - name: deploy
+    image: drillster/drone-rsync
+    settings:
+      hosts:
+        from_secret: DEPLOY_HOST
+      user:
+        from_secret: DEPLOY_USER
+      key:
+        from_secret: DEPLOY_SSH_KEY
+      source: dist/
+      target: /var/www/mysite/
+      delete: true
+    depends_on: [build]
+    when:
+      - event: push
+        branch: main

@@ -1,0 +1,68 @@
+# Woodpecker CI pipeline: Docker build + push + deploy
+# build -> push to registry -> SSH deploy (docker compose)
+#
+# Usage: copy to project root as .woodpecker.yml
+# Required secrets: REGISTRY_TOKEN, DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY
+# Set REGISTRY_USER and IMAGE_NAME in variables below
+
+variables:
+  - &node 'node:20-alpine'
+  - &registry 'ghcr.io'
+  - &image 'ghcr.io/YOUR_ORG/YOUR_APP'
+
+when:
+  - event: [push, pull_request]
+
+steps:
+  - name: install
+    image: *node
+    commands:
+      - npm ci
+
+  - name: lint
+    image: *node
+    commands:
+      - npm run lint
+    depends_on: [install]
+
+  - name: test
+    image: *node
+    commands:
+      - npm test
+    depends_on: [install]
+
+  - name: docker-build-push
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo: *image
+      registry: *registry
+      username:
+        from_secret: REGISTRY_USER
+      password:
+        from_secret: REGISTRY_TOKEN
+      tags:
+        - latest
+        - '${CI_COMMIT_SHA:0:8}'
+    depends_on: [lint, test]
+    when:
+      - event: push
+        branch: main
+
+  - name: deploy
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        from_secret: DEPLOY_HOST
+      username:
+        from_secret: DEPLOY_USER
+      key:
+        from_secret: DEPLOY_SSH_KEY
+      port: 22
+      script:
+        - cd /opt/myapp
+        - docker compose pull
+        - docker compose up -d --remove-orphans
+    depends_on: [docker-build-push]
+    when:
+      - event: push
+        branch: main

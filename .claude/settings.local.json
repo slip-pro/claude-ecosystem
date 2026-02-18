@@ -9,7 +9,11 @@
       "Bash(bash:*)",
       "Bash(echo '{\"\"permissions\"\":{\"\"allow\"\":[\"\"Bash\\(git:*\\)\"\"]},\"\"hooks\"\":{\"\"PreToolUse\"\":[{\"\"matcher\"\":\"\"tool == ''''Bash''''\"\",\"\"hooks\"\":[{\"\"type\"\":\"\"command\"\",\"\"command\"\":\"\"echo existing\"\"}]}]}}')",
       "WebFetch(domain:docs.dokploy.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+      "Bash(gh search code:*)",
+      "mcp__plugin_context7_context7__resolve-library-id"
     ]
   }
 }

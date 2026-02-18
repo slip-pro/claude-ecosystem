@@ -1,0 +1,55 @@
+# Woodpecker CI pipeline: Node.js full-stack
+# install -> lint + test (parallel) -> build -> deploy
+#
+# Usage: copy to project root as .woodpecker.yml
+# Required secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY
+
+variables:
+  - &node 'node:20-alpine'
+
+when:
+  - event: [push, pull_request]
+
+steps:
+  - name: install
+    image: *node
+    commands:
+      - npm ci
+
+  - name: lint
+    image: *node
+    commands:
+      - npm run lint
+    depends_on: [install]
+
+  - name: test
+    image: *node
+    commands:
+      - npm test
+    depends_on: [install]
+
+  - name: build
+    image: *node
+    commands:
+      - npm run build
+    depends_on: [lint, test]
+
+  - name: deploy
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        from_secret: DEPLOY_HOST
+      username:
+        from_secret: DEPLOY_USER
+      key:
+        from_secret: DEPLOY_SSH_KEY
+      port: 22
+      script:
+        - cd /opt/myapp
+        - git pull origin main
+        - npm ci --production
+        - pm2 restart all
+    depends_on: [build]
+    when:
+      - event: push
+        branch: main
